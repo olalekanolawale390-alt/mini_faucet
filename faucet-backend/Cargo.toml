@@ -1,0 +1,13 @@
+[package]
+name = "faucet-backend"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+actix-extensible-rate-limit = "0.4.0"
+actix-web = "4.13.0"
+alloy = { version = "1.7.3", features = ["full"] }
+chrono = "0.4.44"
+dotenv = "0.15.0"
+tokio = { version = "1.49.0", features = ["full", "rt", "rt-multi-thread"] }
+
