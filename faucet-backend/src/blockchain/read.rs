@@ -17,7 +17,7 @@ sol! {
 pub async fn get_faucet_balance() -> String{
     dotenv().ok();
     let provider = ProviderBuilder::new().connect(&env::var("rpc_url").unwrap()).await;
-    let faucet_balance = address!("0xeB3B6a3f084E237D364532dff4918589142eAbf8");
+    let faucet_balance = address!("0x3AC5a5f60753bbfaD93B668A0bEC5c8fA0E647be");
     let faucet_balance_instance = MiniFaucet::new(faucet_balance, provider.unwrap());
     let get_faucet_balance = faucet_balance_instance.faucetBalance().call().await;
   
@@ -47,7 +47,7 @@ pub async fn get_wallet_balance(address: String) -> Resulter<String> {
     }
     let recipient = recipient.unwrap();
     let provider = ProviderBuilder::new().connect(&env::var("rpc_url").unwrap()).await;
-    let wallet_balance = address!("0xeB3B6a3f084E237D364532dff4918589142eAbf8");
+    let wallet_balance = address!("0x3AC5a5f60753bbfaD93B668A0bEC5c8fA0E647be");
     let wallet_balance_instance = MiniFaucet::new(wallet_balance, provider.unwrap());
     let get_wallet_balance = wallet_balance_instance.getBalance(recipient).call().await;
     match get_wallet_balance {
@@ -67,7 +67,7 @@ pub async fn next_claim(address: String) -> String {
     if let Err(error) = user {return error.to_string()}
     let user = user.unwrap();
     let provider  = ProviderBuilder::new().connect(&env::var("rpc_url").unwrap()).await.unwrap();
-    let next_claim = address!("0xeB3B6a3f084E237D364532dff4918589142eAbf8");
+    let next_claim = address!("0x3AC5a5f60753bbfaD93B668A0bEC5c8fA0E647be");
     let next_claim_instance = MiniFaucet::new(next_claim, provider);
     let req = next_claim_instance.nextClaimTime(user).call().await ;
 

@@ -27,7 +27,7 @@ pub async fn claim() -> Result<(), Box<dyn Error>> {
         .wallet(signer)
         .connect(&env::var("rpc_url").unwrap()).await?;
     let recipient = address!("0x5EE15251C47e60769F2E63605d4323ba54c07983");
-    let claim = address!("0xeB3B6a3f084E237D364532dff4918589142eAbf8");
+    let claim = address!("0x3AC5a5f60753bbfaD93B668A0bEC5c8fA0E647be");
     let claim_instance = MiniFaucet::new(claim, provider); 
     let claimer = claim_instance.claim(recipient); 
     let claim_tx = match claimer.send().await {

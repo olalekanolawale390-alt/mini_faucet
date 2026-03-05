@@ -16,7 +16,7 @@ sol! {
 #[tokio::main]
 pub async fn get_faucet_balance() -> Result<f64, Box<dyn Error>> {
     let provider = ProviderBuilder::new().connect(&env::var("rpc_url").unwrap()).await?;
-    let faucet_balance = address!("0xeB3B6a3f084E237D364532dff4918589142eAbf8");
+    let faucet_balance = address!("0x3AC5a5f60753bbfaD93B668A0bEC5c8fA0E647be");
     let faucet_balance_instance = MiniFaucet::new(faucet_balance, provider);
     let get_faucet_balance = faucet_balance_instance.faucetBalance().call().await?;
     let get_faucet_balance = U256::from(get_faucet_balance).to::<u128>();
@@ -29,7 +29,7 @@ pub async fn get_faucet_balance() -> Result<f64, Box<dyn Error>> {
 pub async fn get_wallet_balance() -> Result<f64, Box<dyn Error>> {
     let recipient = address!("0x5EE15251C47e60769F2E63605d4323ba54c07983");
     let provider = ProviderBuilder::new().connect(&env::var("rpc_url").unwrap()).await?;
-    let wallet_balance = address!("0xeB3B6a3f084E237D364532dff4918589142eAbf8");
+    let wallet_balance = address!("0x3AC5a5f60753bbfaD93B668A0bEC5c8fA0E647be");
     let wallet_balance_instance = MiniFaucet::new(wallet_balance, provider);
     let get_wallet_balance = wallet_balance_instance.getBalance(recipient).call().await?;
     let get_wallet_balance = U256::from(get_wallet_balance).to::<u128>();
@@ -43,7 +43,7 @@ pub async fn get_wallet_balance() -> Result<f64, Box<dyn Error>> {
 pub async fn next_claim() -> Result<String, Box<dyn Error>> {
     let recipient = address!("0x5EE15251C47e60769F2E63605d4323ba54c07983");
     let provider  = ProviderBuilder::new().connect(&env::var("rpc_url").unwrap()).await?;
-    let next_claim = address!("0xeB3B6a3f084E237D364532dff4918589142eAbf8");
+    let next_claim = address!("0x3AC5a5f60753bbfaD93B668A0bEC5c8fA0E647be");
     let next_claim_instance = MiniFaucet::new(next_claim, provider);
     let req = next_claim_instance.nextClaimTime().from(recipient).call().await ;
 
