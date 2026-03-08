@@ -1,5 +1,6 @@
 [application]
 
+
 [web.app]
 
 # HTML title tag content
@@ -9,7 +10,7 @@ title = "faucet-frontend"
 [web.resource]
 
 # Additional CSS style files
-style = []
+style = ["assets/tailwind.css"]
 
 # Additional JavaScript files
 script = []
