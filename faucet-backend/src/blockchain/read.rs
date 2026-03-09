@@ -1,8 +1,10 @@
 use alloy::{primitives::{Address, U256, address}, providers::ProviderBuilder, sol};
+use alloy::sol_types::Revert;
+use actix_web::{Responder, web};
 use std::env;
+use serde::{Serialize};
 use dotenv::dotenv;
 use chrono::{DateTime, Utc};
- 
 
 sol! { 
     #[derive(Debug)]
@@ -33,6 +35,7 @@ pub async fn get_faucet_balance() -> String{
 
 #[derive(Clone, Copy, Debug)]
 pub struct Resulter<T> (T);
+
 impl Resulter<String>{
     pub fn display(&self) -> String{
         format!("{}", self.0)
@@ -60,21 +63,29 @@ pub async fn get_wallet_balance(address: String) -> Resulter<String> {
     // get_wallet_balance
 }
 
+#[derive(Serialize)]
+struct Status{message: String, status: String}
 #[tokio::main]
-pub async fn next_claim(address: String) -> String {
+pub async fn next_claim(address: String) -> impl Responder {
     dotenv().ok();
     let user = address.parse::<Address>();
-    if let Err(error) = user {return error.to_string()}
+    if let Err(error) = user {let message = error.to_string(); return web::Json(Status{ message, status: String::from("error") });}
     let user = user.unwrap();
     let provider  = ProviderBuilder::new().connect(&env::var("rpc_url").unwrap()).await.unwrap();
     let next_claim = address!("0x3AC5a5f60753bbfaD93B668A0bEC5c8fA0E647be");
     let next_claim_instance = MiniFaucet::new(next_claim, provider);
     let req = next_claim_instance.nextClaimTime(user).call().await ;
 
-    if let Err(error) = req {return error.to_string();}
+    if let Err(err) = req {
+        let reason = err.as_decoded_error::<Revert>();
+        let reason = reason.map(|r|r.to_string()).unwrap_or(err.to_string());
+        let result = Status {message: reason, status: "error".to_string()};
+        return web::Json(result);
+    }
+
     let get_next_claim = req.unwrap().to_string();
     let get_next_claim = get_next_claim.parse::<i64>().unwrap();
     let dt: DateTime<Utc> = DateTime::from_timestamp_secs(get_next_claim).unwrap();
     let dt = dt.to_rfc2822();
-    dt
+    web::Json(Status { message: dt, status: String::from("success") })
 }

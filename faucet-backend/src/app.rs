@@ -13,7 +13,7 @@ pub async fn app() -> std::io::Result<()> {
         let limiter = rate_limit(backend.clone());
         App::new().wrap(limiter).service(web::scope("/api").service(handler_claim).service(faucet_addy).service(faucet_balance).service(address_balance).service(next_claim)).service(home)
     })
-    .bind(("0.0.0.0", 8080))?.run().await
+    .bind(("0.0.0.0", 4001))?.run().await
 }
 
 #[get("/")]
