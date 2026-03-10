@@ -41,7 +41,7 @@ pub async fn claim(address: String) -> impl Responder{
     if req.is_err() {
         if let Err(error) = req {
             let result = error.as_decoded_error::<Revert>();
-            let result = result.map(|r|r.to_string()).unwrap_or(error.to_string());
+            let result = result.map(|r|r.to_string()).unwrap_or(format!("failed to connect to blockchain, check your connection and try again"));
             let result = Status{message: result, status: "error".to_string()};
             return web::Json(result);
         };

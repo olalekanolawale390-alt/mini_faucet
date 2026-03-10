@@ -1,4 +1,4 @@
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{get, body::BoxBody, web, HttpResponse, Responder};
 use crate::blockchain::read::{get_faucet_balance, get_wallet_balance, next_claim as nextClaim};
 
 #[get("/faucet-address")]
@@ -13,15 +13,9 @@ pub async fn faucet_addy() -> String {
 #[get("/faucet-balance")]
 pub async fn faucet_balance() -> impl Responder{
     let balance = tokio::task::spawn_blocking(||{ get_faucet_balance()})
-        .await;
+        ;
     match balance {
-        Ok(result) => {
-            HttpResponse::Ok().body(result) 
-        },
-        Err(e) => {
-            let error = format!("{}", e);
-            HttpResponse::GatewayTimeout().body(error)
-        }
+        result => result.await.unwrap(),
     }
 }
 

@@ -1,10 +1,30 @@
-use alloy::{primitives::{Address, U256, address}, providers::ProviderBuilder, sol};
-use alloy::sol_types::Revert;
-use actix_web::{Responder, web};
-use std::env;
+use alloy::{primitives::{Address, U256, address}, providers::ProviderBuilder, sol, sol_types::{RevertReason, Revert}};
+use actix_web::{HttpRequest,HttpResponse,Responder, body::BoxBody, web};
+use std::{env, string};
 use serde::{Serialize};
 use dotenv::dotenv;
 use chrono::{DateTime, Utc};
+
+#[derive(Serialize)]
+enum MyResponse<E,S,/*W*/>{
+    Success(S),
+    Error(E),
+    //IncorrectAddr(W)
+}
+
+impl <E,S> Responder for MyResponse<E,S>
+where 
+    E: serde::Serialize,
+    S: serde::Serialize {
+        type Body = BoxBody;
+
+        fn respond_to(self, _req: &HttpRequest) -> HttpResponse<Self::Body> {
+            match self {
+                MyResponse::Success(success) => HttpResponse::Ok().json(success),
+                MyResponse::Error(error) => HttpResponse::ExpectationFailed().json(error),
+            }
+        }
+    }
 
 sol! { 
     #[derive(Debug)]
@@ -16,21 +36,25 @@ sol! {
     } 
 }
 #[tokio::main]
-pub async fn get_faucet_balance() -> String{
+pub async fn get_faucet_balance() -> impl Responder{
     dotenv().ok();
     let provider = ProviderBuilder::new().connect(&env::var("rpc_url").unwrap()).await;
     let faucet_balance = address!("0x3AC5a5f60753bbfaD93B668A0bEC5c8fA0E647be");
     let faucet_balance_instance = MiniFaucet::new(faucet_balance, provider.unwrap());
     let get_faucet_balance = faucet_balance_instance.faucetBalance().call().await;
   
-    match get_faucet_balance {
-        Ok(result) => {
-            let faucet_balance = U256::from(result).to::<u128>();
-            let faucet_balance = faucet_balance as f64 / 1e18;
-            faucet_balance.to_string()
-        }
-        Err(e) =>  e.to_string()
-    }
+    if let Err(e) = get_faucet_balance {
+        let error = e.as_decoded_error::<Revert>();
+        let error = error.map(|r|format!("{r}")).unwrap_or(format!("server unable to connect to blockchain"));
+        let error = MyResponse::Error(error);
+        return web::Json(error);
+    } 
+    let success = get_faucet_balance.ok().unwrap();
+    let success = MyResponse::Success(success);
+    web::Json(success)
+
+
+
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -78,7 +102,7 @@ pub async fn next_claim(address: String) -> impl Responder {
 
     if let Err(err) = req {
         let reason = err.as_decoded_error::<Revert>();
-        let reason = reason.map(|r|r.to_string()).unwrap_or(err.to_string());
+        let reason = reason.map(|r|r.to_string()).unwrap_or(format!("failed to connect to blockchain, check your connection and try again"));
         let result = Status {message: reason, status: "error".to_string()};
         return web::Json(result);
     }

@@ -9,7 +9,7 @@ contract MiniFaucet {
     function  claim(address _to) public payable {
         uint256 user_next_claim = list_of_claimers[_to];
         if (list_of_claimers[_to] != 0) {
-            require(block.timestamp > user_next_claim, "you can only claim once every 24hrs");   
+            require(block.timestamp > user_next_claim, "you can only claim once every 24hrs");
         }
         (bool sent,) = _to.call{value: 2e15}("");
         require(sent, "Failed to send Ether");
