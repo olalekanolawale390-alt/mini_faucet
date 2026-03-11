@@ -1,17 +1,13 @@
-use crate::handlers::write::claim as handler_claim;
-use crate::middleware::rate_limit;
-use crate::handlers::read::{faucet_addy, faucet_balance, address_balance, next_claim};
-use actix_web::{App, HttpResponse, HttpServer, Responder, get, web::{self, }};
-use actix_extensible_rate_limit::{
-    backend::{memory::InMemoryBackend}
-};
+use crate::blockchain::imports::*;
+
 
 #[actix_web::main]
 pub async fn app() -> std::io::Result<()> {
     let backend = InMemoryBackend::builder().build();
     HttpServer::new(move || {
+        let cors = allowance();
         let limiter = rate_limit(backend.clone());
-        App::new().wrap(limiter).service(web::scope("/api").service(handler_claim).service(faucet_addy).service(faucet_balance).service(address_balance).service(next_claim)).service(home)
+        App::new().wrap(cors).wrap(limiter).service(web::scope("/api").service(handler_claim).service(faucet_addy).service(faucet_balance).service(address_balance).service(next_claim)).service(home)
     })
     .bind(("0.0.0.0", 4001))?.run().await
 }

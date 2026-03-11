@@ -1,6 +1,8 @@
-use dioxus;
+mod imports;
 mod components;
-use crate::components::claim_input::claim_input;
+mod custom;
+
+use crate::imports::*;
 
 fn main() {
     dioxus::launch(claim_input);

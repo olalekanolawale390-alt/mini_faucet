@@ -3,8 +3,8 @@ use crate::blockchain::imports::*;
 pub async fn get_faucet_balance() -> MyResponseReturn {
     dotenv().ok();
     let provider = ProviderBuilder::new().connect(&env::var("rpc_url").unwrap()).await;
-    let faucet_balance = address!("0x3AC5a5f60753bbfaD93B668A0bEC5c8fA0E647be");
-    let faucet_balance_instance = MiniFaucet::new(faucet_balance, provider.unwrap());
+    let contract = address!("0x3AC5a5f60753bbfaD93B668A0bEC5c8fA0E647be");
+    let faucet_balance_instance = MiniFaucet::new(contract, provider.unwrap());
     let get_faucet_balance = faucet_balance_instance.faucetBalance().call().await;
   
     if let Err(e) = get_faucet_balance {
