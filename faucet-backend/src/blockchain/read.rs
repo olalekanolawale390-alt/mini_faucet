@@ -1,16 +1,6 @@
 use crate::blockchain::imports::*;
 
-sol! { 
-    #[derive(Debug)]
-    #[sol(rpc)] 
-    contract MiniFaucet { 
-        function faucetBalance() public view returns (uint256);
-        function getBalance(address recipient) public view returns(uint256);
-        function nextClaimTime(address addy) public view returns (uint256);
-    } 
-}
-
-pub async fn get_faucet_balance() -> impl Responder{
+pub async fn get_faucet_balance() -> MyResponseReturn {
     dotenv().ok();
     let provider = ProviderBuilder::new().connect(&env::var("rpc_url").unwrap()).await;
     let faucet_balance = address!("0x3AC5a5f60753bbfaD93B668A0bEC5c8fA0E647be");
@@ -50,17 +40,19 @@ pub async fn get_wallet_balance(address: String) -> MyResponseReturn {
         }))
     }
 
-    let balance = balance_result.unwrap().to::<u128>();
+    let balance = balance_result.unwrap().to::<u128>() as f64 / 1e18;
     MyResponse::Success(json!({
-        "status" : "success", "message" : balance
+        "status" : "success", "message" : format!("{:.4}",balance)
     }))
 }
 
 
-pub async fn next_claim(address: String) -> impl Responder {
+pub async fn next_claim(address: String) -> MyResponseReturn {
     dotenv().ok();
     let user = address.parse::<Address>();
-    if let Err(error) = user {let message = error.to_string(); return web::Json(Status{ message, status: String::from("error") });}
+    if let Err(error) = user {let message = error.to_string(); return MyResponse::IncorrectAddr(json!({
+        "status" : "error", "message" : message
+    }));}
     let user = user.unwrap();
     let provider  = ProviderBuilder::new().connect(&env::var("rpc_url").unwrap()).await.unwrap();
     let next_claim = address!("0x3AC5a5f60753bbfaD93B668A0bEC5c8fA0E647be");
@@ -70,13 +62,16 @@ pub async fn next_claim(address: String) -> impl Responder {
     if let Err(err) = req {
         let reason = err.as_decoded_error::<Revert>();
         let reason = reason.map(|r|r.to_string()).unwrap_or(format!("failed to connect to blockchain, check your connection and try again"));
-        let result = Status {message: reason, status: "error".to_string()};
-        return web::Json(result);
+        return MyResponse::Error(json!({
+            "status" : "error", "message" : reason
+        }));
     }
 
     let get_next_claim = req.unwrap().to_string();
     let get_next_claim = get_next_claim.parse::<i64>().unwrap();
     let dt: DateTime<Utc> = DateTime::from_timestamp_secs(get_next_claim).unwrap();
     let dt = dt.to_rfc2822();
-    web::Json(Status { message: dt, status: String::from("success") })
+    MyResponse::Success(json!({
+        "status" : "success", "message" : dt
+    }))
 }

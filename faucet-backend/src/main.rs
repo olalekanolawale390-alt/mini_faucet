@@ -1,4 +1,3 @@
-// use std::io;
 mod blockchain;
 mod handlers;
 mod app;

@@ -1,21 +1,6 @@
-use actix_web::Responder;
-use alloy::{sol_types::Revert,primitives::{Address}, providers::ProviderBuilder, signers::local::PrivateKeySigner, sol };
-use std::{env};
-use serde_json::{json, Value};
-use crate::blockchain::custom::MyResponse;
-// use crate::blockchain::custom::Status;
-use dotenv::dotenv;
+use crate::blockchain::imports::*;
 
-sol! { 
-    #[sol(rpc)] 
-    contract MiniFaucet { 
-         function deposit () public payable;
-          function  claim(address _to) public payable;
-    } 
-}
-
-#[tokio::main]
-pub async fn claim(address: String) -> impl Responder{
+pub async fn claim(address: String) -> MyResponseReturn{
     dotenv().ok();
 
     let private_key = env::var("PRIVATE_KEY").unwrap();
@@ -31,7 +16,7 @@ pub async fn claim(address: String) -> impl Responder{
             return MyResponse::<Value, Value, Value>::IncorrectAddr(json!({
                 "status" : "error",
                 "message" : error.to_string(),
-            }) );}
+            }));}
     }
 
     let recipient = recipient.unwrap();
