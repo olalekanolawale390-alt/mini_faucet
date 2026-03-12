@@ -3,8 +3,8 @@ pub use reqwest::get as req_get;
 pub use serde::Deserialize;
 
 pub use crate::components::{
-    claim::Claim, faucet_balance::FaucetBalance, home::Home, my_balance::MyBalance,
-    next_time::NextTime,
+    claim::Claim, contribute::Contribute, faucet_balance::FaucetBalance, home::Home,
+    my_balance::MyBalance, next_time::NextTime,
 };
 pub use crate::custom::{MyRoute, Request};
 
