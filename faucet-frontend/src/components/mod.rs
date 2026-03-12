@@ -1,4 +1,5 @@
-pub mod next_time;
-pub mod home;
 pub mod claim;
+pub mod faucet_balance;
+pub mod home;
 pub mod my_balance;
+pub mod next_time;
