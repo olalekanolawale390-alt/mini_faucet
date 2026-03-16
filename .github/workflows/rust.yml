@@ -19,13 +19,10 @@ jobs:
     - name: Build
       working-directory: Faucet_Cli
       run: cargo build --release
-    - name: Run tests
-      working-directory: Faucet_Cli
-      run: cargo build
 
     - name : upload
       uses: actions/upload-artifact@v4
       with :
         name: my-artifact
-        path: target/release/
+        path: Faucet_Cli/target/release/
     
