@@ -1,0 +1,31 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      working-directory: Faucet_Cli
+      run: cargo build --release
+    - name: Run tests
+      working-directory: Faucet_Cli
+      run: cargo build
+
+    - name : upload
+      uses: actions/upload-artifact@v4
+      with :
+        name: my-artifact
+        path: target/release/
+    
