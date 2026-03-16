@@ -1,11 +1,11 @@
-use std::io;
-mod prelude;
-mod claim;
-mod types;
+pub mod prelude;
+pub mod handlers;
+pub mod types;
+pub mod components;
 
 fn main() {
-    let claimer = claim::claim();
-    println!("{:?}", claimer);
-    println!("\n\nClick enter to exit");
-    io::stdin().read_line(&mut String::new()).expect("end");
+    let run_tui = components::tui::run();
+    if let Err(error) = run_tui {
+        eprintln!("Error: {}", error);
+    }
 }
