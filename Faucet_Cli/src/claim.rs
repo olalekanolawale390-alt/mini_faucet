@@ -1,9 +1,6 @@
 use crate::prelude::*;
 
-#[tokio::main]
-pub async fn claim() -> Responder<String, String>{
-    let mut user_address = String::new();
-    io::stdin().read_line(&mut user_address).expect("can't read input");
+pub async fn claim_with_address(user_address: String) -> Responder<String, String> {
     let corrected = user_address.trim_start().trim_end();
     let url = format!("https://sepolia-faucet.eccentrichealer.xyz/api/claim/{corrected}");
     let get_claim = get(url).await;
@@ -23,5 +20,4 @@ pub async fn claim() -> Responder<String, String>{
     else {
         Responder::Error(result.message)
     }
-
 }
